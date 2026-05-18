@@ -1,0 +1,50 @@
+# ── SMART Health IT public sandbox profile ────────────────────────────────────
+#
+# Activated by: -Dspring.profiles.active=smart
+# Required env: none — uses a public client ID accepted by launch.smarthealthit.org
+#
+# The SMART Health IT sandbox (https://launch.smarthealthit.org) is a free,
+# publicly hosted SMART-compliant FHIR server maintained by the SMART Health IT
+# team. It:
+#   - Implements the full SMART App Launch v2 spec (PKCE, dynamic discovery)
+#   - Requires no developer registration or account
+#   - Uses a public well-known client_id accepted by the sandbox
+#   - Hosts synthetic patient data (Synthea-generated, no real PHI)
+#   - Is suitable for automated CI integration tests
+#
+# FHIR base (R4): https://launch.smarthealthit.org/v/r4/fhir
+# Auth base:      Resolved from /.well-known/smart-configuration
+#
+# Pre-selected test patient for automated tests:
+#   Patient FHIR ID: 87a339d0-8cae-418e-89c7-8651e6aab3c6
+#   (Synthea patient "Dustin Maggio" — stable across sandbox resets)
+
+spring:
+  profiles:
+    active: smart
+
+smart:
+  epic:
+    # Public client ID accepted by launch.smarthealthit.org without registration.
+    # This client is configured in the sandbox as a public SMART client.
+    client-id: growth_chart
+    redirect-uri: http://localhost:8080/callback
+    scopes:
+      - launch
+      - openid
+      - patient/Patient.rs
+      - patient/Condition.rs
+      - patient/MedicationRequest.rs
+    discovery-cache-minutes: 5
+
+hapi:
+  fhir:
+    log-requests-and-responses: true
+    socket-timeout-ms: 30000
+    connect-timeout-ms: 10000
+
+logging:
+  level:
+    com.smartfhir: DEBUG
+    org.springframework.security: INFO
+    ca.uhn.fhir: INFO

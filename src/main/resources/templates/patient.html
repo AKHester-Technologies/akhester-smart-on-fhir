@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Patient')}"></head>
+<body th:attr="data-token-expires-at=${session?.tokenExpiresAt}">
+
+<div th:replace="~{layout :: patient-banner(${session})}" th:if="${session != null and session.needPatientBanner}"></div>
+<nav th:replace="~{layout :: nav('patient')}"></nav>
+
+<main class="container">
+  <div class="page-header">
+    <h1 class="page-title">Patient</h1>
+    <a class="btn-back" th:href="@{/}">← Dashboard</a>
+  </div>
+
+  <div th:replace="~{layout :: error(${error})}"></div>
+
+  <div class="card" th:if="${patient != null}">
+    <div class="card-header">
+      <h2 class="card-title">Demographics</h2>
+      <span class="badge badge-fhir">FHIR R4</span>
+    </div>
+
+    <div class="patient-hero">
+      <div class="patient-avatar-lg" th:text="${#strings.substring(patient.name, 0, 1)}">P</div>
+      <div>
+        <div class="patient-name-lg" th:text="${patient.name}">Patient Name</div>
+        <div class="patient-id mono" th:text="'FHIR ID: ' + ${patient.id}"></div>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-row">
+        <span class="info-label">Date of Birth</span>
+        <span class="info-value" th:text="${patient.birthDate ?: '—'}"></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Gender</span>
+        <span class="info-value" th:text="${#strings.capitalize(patient.gender ?: 'unknown')}"></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Patient Banner</span>
+        <span class="info-value">
+          <span class="badge" th:classappend="${patient.patientBanner} ? 'badge-ehr' : 'badge-standalone'"
+                th:text="${patient.patientBanner} ? 'Required' : 'Not Required'"></span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scope not granted -->
+  <div class="empty-state" th:if="${patient == null and error == null}">
+    <div class="empty-icon">🔒</div>
+    <h3>Scope Required</h3>
+    <p>Add <code>patient/Patient.rs</code> to <code>smart.epic.scopes</code> in your configuration.</p>
+  </div>
+
+</main>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

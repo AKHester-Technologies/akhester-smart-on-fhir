@@ -1,0 +1,22 @@
+# Base integration test configuration.
+# Each IT activates either 'smart' or 'epic' profile on top of this.
+# This file satisfies @NotBlank validation on EpicProperties during context load.
+
+smart:
+  epic:
+    client-id: test-client-id-placeholder
+    redirect-uri: http://localhost:8080/callback
+    scopes:
+      - launch
+      - openid
+    discovery-cache-minutes: 1
+
+hapi:
+  fhir:
+    log-requests-and-responses: true
+    socket-timeout-ms: 30000
+    connect-timeout-ms: 10000
+
+logging:
+  level:
+    com.smartfhir: DEBUG

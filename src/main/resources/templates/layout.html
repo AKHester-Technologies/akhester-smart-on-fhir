@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title th:text="${title} + ' — SMART FHIR Client'">SMART FHIR Client</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}"/>
+</head>
+
+<!-- Patient Banner fragment — rendered when needPatientBanner=true -->
+<div th:fragment="patient-banner(session)" class="patient-banner">
+  <div class="banner-inner">
+    <div class="banner-avatar">
+      <span th:text="${#strings.substring(session.patientName ?: 'P', 0, 1)}">P</span>
+    </div>
+    <div class="banner-info">
+      <div class="banner-name" th:text="${session.patientName ?: 'Patient'}">Patient Name</div>
+      <div class="banner-meta">
+        <span th:if="${session.patientDob}" th:text="'DOB: ' + ${session.patientDob}"></span>
+        <span th:if="${session.patientGender}" th:text="'· ' + ${session.patientGender}"></span>
+        <span th:if="${session.encounterId}" class="badge-encounter">
+          Encounter: <span th:text="${session.encounterId}"></span>
+        </span>
+      </div>
+    </div>
+    <div class="banner-mode"
+         th:classappend="${session.launchMode == 'ehr'} ? 'mode-ehr' : 'mode-standalone'"
+         th:text="${session.launchMode == 'ehr'} ? 'EHR Launch' : 'Standalone'">
+    </div>
+  </div>
+</div>
+
+<!-- Navigation fragment -->
+<nav th:fragment="nav(active)" class="app-nav">
+  <div class="nav-brand">
+    <span class="nav-icon">⚕</span>
+    <span>SMART FHIR Client</span>
+  </div>
+  <div class="nav-links">
+    <a th:href="@{/}" th:classappend="${active == 'home'} ? 'active'">Dashboard</a>
+    <a th:href="@{/patient}" th:classappend="${active == 'patient'} ? 'active'">Patient</a>
+    <a th:href="@{/conditions}" th:classappend="${active == 'conditions'} ? 'active'">Conditions</a>
+    <a th:href="@{/medications}" th:classappend="${active == 'medications'} ? 'active'">Medications</a>
+  </div>
+  <div class="nav-user" th:if="${session != null and session.userName != null}">
+    <span class="user-dot"></span>
+    <span th:text="${session.userName}">Dr. Smith</span>
+  </div>
+</nav>
+
+<!-- Error alert fragment -->
+<div th:fragment="error(message)" class="alert alert-error" th:if="${message}">
+  <span class="alert-icon">⚠</span>
+  <span th:text="${message}">Error message</span>
+</div>
+
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Conditions')}"></head>
+<body th:attr="data-token-expires-at=${session?.tokenExpiresAt}">
+
+<div th:replace="~{layout :: patient-banner(${session})}" th:if="${session != null and session.needPatientBanner}"></div>
+<nav th:replace="~{layout :: nav('conditions')}"></nav>
+
+<main class="container">
+  <div class="page-header">
+    <h1 class="page-title">Conditions</h1>
+    <a class="btn-back" th:href="@{/}">← Dashboard</a>
+  </div>
+
+  <div th:replace="~{layout :: error(${error})}"></div>
+
+  <!-- Conditions table -->
+  <div class="card" th:if="${conditions != null and !conditions.isEmpty()}">
+    <div class="card-header">
+      <h2 class="card-title">Active Conditions</h2>
+      <span class="badge badge-count" th:text="${conditions.size()} + ' total'"></span>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>FHIR ID</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="c : ${conditions}">
+          <td><span class="code-chip" th:text="${c.code ?: '—'}"></span></td>
+          <td th:text="${c.display ?: 'Unknown condition'}"></td>
+          <td><span class="badge badge-ehr" th:text="${c.status ?: 'active'}"></span></td>
+          <td class="mono small" th:text="${c.id}"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" th:if="${conditions != null and conditions.isEmpty()}">
+    <div class="empty-icon">✅</div>
+    <h3>No Active Conditions</h3>
+    <p>No active conditions found for this patient.</p>
+  </div>
+
+  <!-- Scope not granted -->
+  <div class="empty-state" th:if="${conditions == null and error == null}">
+    <div class="empty-icon">🔒</div>
+    <h3>Scope Required</h3>
+    <p>Add <code>patient/Condition.rs</code> to <code>smart.epic.scopes</code> in your configuration.</p>
+  </div>
+
+</main>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+# ── Epic non-production sandbox profile ──────────────────────────────────────
+#
+# Activated by: -Dspring.profiles.active=epic
+# Required env: EPIC_CLIENT_ID  (non-production client ID from fhir.epic.com)
+#
+# How to get your client ID:
+#   1. Register at https://fhir.epic.com (free)
+#   2. Build Apps → Create → fill in app name and redirect URI
+#   3. Redirect URI must be: http://localhost:8080/callback
+#   4. Copy the non-production Client ID
+#   5. export EPIC_CLIENT_ID=<your-client-id>
+#
+# How to test manually (browser-based EHR launch):
+#   1. mvn spring-boot:run -Dspring-boot.run.profiles=epic
+#   2. Go to https://open.epic.com/launchpad
+#   3. Select "SMART on FHIR App Launch" → pick a patient → enter your launch URL
+#   4. LaunchPad redirects your browser to http://localhost:8080/launch?iss=...&launch=...
+#   5. App completes the SMART handshake automatically
+#   6. You land on / with a valid SMART session
+#   7. GET http://localhost:8080/api/patient  — returns real sandbox patient data
+#
+# Epic sandbox FHIR base:
+#   https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4
+# Epic sandbox auth:
+#   Resolved dynamically from iss/.well-known/smart-configuration
+
+spring:
+  profiles:
+    active: epic
+
+smart:
+  epic:
+    client-id: ${EPIC_CLIENT_ID}     # required — no fallback in this profile
+    redirect-uri: http://localhost:8080/callback
+    scopes:
+      - launch
+      - openid
+      - fhirUser
+      - patient/Patient.rs
+      - patient/Condition.rs
+      - patient/MedicationRequest.rs
+    discovery-cache-minutes: 10      # shorter TTL in sandbox — Epic updates more often
+
+hapi:
+  fhir:
+    log-requests-and-responses: true  # verbose in sandbox — helps diagnose issues
+    socket-timeout-ms: 30000
+    connect-timeout-ms: 10000
+
+logging:
+  level:
+    com.smartfhir: DEBUG
+    org.springframework.security: DEBUG   # show security filter decisions
+    ca.uhn.fhir: INFO                     # show FHIR request/response summaries

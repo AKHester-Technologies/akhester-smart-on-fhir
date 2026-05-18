@@ -1,0 +1,82 @@
+server:
+  port: 8080
+  # Epic's EHR launch iframe requires the same-origin or a known redirect URI.
+  # In production, this must be HTTPS and registered in Epic's App Orchard.
+  servlet:
+    session:
+      timeout: 30m
+
+spring:
+  application:
+    name: smart-fhir-client
+
+  # ── HTTP session ────────────────────────────────────────────────────────────
+  # HttpSession stores:  state nonce, PKCE verifier, SmartLaunchContext
+  # For clustered deployments replace with spring-session-data-redis.
+  session:
+    store-type: none   # plain HttpSession; switch to 'redis' for prod
+
+  # ── Security ────────────────────────────────────────────────────────────────
+  # Spring Security OAuth2 auto-config is explicitly disabled.
+  # We drive the SMART flow manually (SmartLaunchController → SmartAuthRequestBuilder
+  # → SmartCallbackController → SmartTokenService) to inject Epic-specific
+  # params: launch, aud, PKCE, and the non-standard token response extras.
+  # Without this exclusion, the oauth2-client starter would lock down /launch
+  # and /callback before Epic can reach them.
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
+
+# ── SMART / Epic config ──────────────────────────────────────────────────────
+smart:
+  epic:
+    # Non-production client ID from fhir.epic.com → "My Apps"
+    # Switch to client-id-prod for go-live.
+    client-id: ${EPIC_CLIENT_ID:your-non-production-client-id}
+
+    # Must exactly match the redirect URI registered in App Orchard.
+    redirect-uri: ${EPIC_REDIRECT_URI:http://localhost:8080/callback}
+
+    # Scopes requested at launch.
+    # 'launch' is required for EHR launch; it tells Epic to include
+    # the launch context (patient, encounter) in the token response.
+    # Add resource scopes as needed (e.g. patient/Observation.rs).
+    scopes:
+      - launch
+      - openid
+      - fhirUser
+      - patient/Patient.rs
+      - patient/Condition.rs
+      - patient/MedicationRequest.rs
+
+    # Discovery cache TTL — how long to reuse a fetched smart-configuration
+    # before re-fetching from the ISS. Epic's config rarely changes.
+    discovery-cache-minutes: 60
+
+# ── HAPI FHIR client ─────────────────────────────────────────────────────────
+hapi:
+  fhir:
+    # Connection pool for outbound FHIR API calls.
+    # Tune for production load.
+    socket-timeout-ms: 30000
+    connect-timeout-ms: 10000
+    connection-request-timeout-ms: 10000
+    # Log FHIR request/response bodies in dev; turn off in prod.
+    log-requests-and-responses: ${HAPI_LOG_REQUESTS:false}
+
+# ── Actuator (health check) ──────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# ── Logging ──────────────────────────────────────────────────────────────────
+logging:
+  level:
+    com.smartfhir: DEBUG
+    org.springframework.security: INFO
+    ca.uhn.fhir: WARN

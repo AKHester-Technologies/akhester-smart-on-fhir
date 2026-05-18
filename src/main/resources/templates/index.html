@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Dashboard')}"></head>
+<body th:attr="data-token-expires-at=${session?.tokenExpiresAt}">
+
+<div th:replace="~{layout :: patient-banner(${session})}" th:if="${session != null and session.needPatientBanner}"></div>
+<nav th:replace="~{layout :: nav('home')}"></nav>
+
+<main class="container">
+
+  <!-- Standalone — no patient selected yet -->
+  <div class="launch-notice" th:if="${session != null and session.patientId == null}">
+    <div class="notice-icon">🔍</div>
+    <h2>Standalone Launch</h2>
+    <p>No patient has been selected yet. Return to your EHR and select a patient,
+       or use the patient picker if your auth server supports it.</p>
+    <div class="notice-scopes">
+      <strong>Granted scopes:</strong>
+      <span th:each="scope : ${#strings.arraySplit(session.grantedScopes, ' ')}"
+            class="scope-tag" th:text="${scope}"></span>
+    </div>
+  </div>
+
+  <!-- Dashboard when patient is in context -->
+  <div th:if="${session != null and session.patientId != null}">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">
+          <span th:text="${session.launchMode == 'ehr'} ? 'EHR Launch' : 'Standalone'"></span>
+          · Token expires <span th:text="${session.tokenExpiresIn}">in 60 min</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Quick stats row -->
+    <div class="stats-row">
+      <a class="stat-card" th:href="@{/patient}">
+        <div class="stat-icon">👤</div>
+        <div class="stat-label">Patient</div>
+        <div class="stat-value" th:text="${session.patientName ?: session.patientId}">Name</div>
+      </a>
+      <a class="stat-card" th:href="@{/conditions}">
+        <div class="stat-icon">🩺</div>
+        <div class="stat-label">Conditions</div>
+        <div class="stat-value" th:text="${conditionCount ?: '—'}">—</div>
+      </a>
+      <a class="stat-card" th:href="@{/medications}">
+        <div class="stat-icon">💊</div>
+        <div class="stat-label">Medications</div>
+        <div class="stat-value" th:text="${medicationCount ?: '—'}">—</div>
+      </a>
+      <div class="stat-card" th:classappend="${session.encounterId != null} ? '' : 'stat-muted'">
+        <div class="stat-icon">🏥</div>
+        <div class="stat-label">Encounter</div>
+        <div class="stat-value" th:text="${session.encounterId != null} ? 'Active' : 'None'">—</div>
+      </div>
+    </div>
+
+    <!-- Two-column layout -->
+    <div class="two-col">
+
+      <!-- Left: Session info -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Session</h2>
+        </div>
+        <div class="info-list">
+          <div class="info-row">
+            <span class="info-label">Patient ID</span>
+            <span class="info-value mono" th:text="${session.patientId}"></span>
+          </div>
+          <div class="info-row" th:if="${session.encounterId}">
+            <span class="info-label">Encounter ID</span>
+            <span class="info-value mono" th:text="${session.encounterId}"></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">FHIR Server</span>
+            <span class="info-value mono small" th:text="${session.fhirBaseUrl}"></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Launch Mode</span>
+            <span class="badge" th:classappend="${session.launchMode == 'ehr'} ? 'badge-ehr' : 'badge-standalone'"
+                  th:text="${session.launchMode}"></span>
+          </div>
+        </div>
+        <div class="card-section-title">Granted Scopes</div>
+        <div class="scope-list">
+          <span th:each="scope : ${#strings.arraySplit(session.grantedScopes, ' ')}"
+                class="scope-tag" th:text="${scope}"></span>
+        </div>
+      </div>
+
+      <!-- Right: Clinician profile -->
+      <div class="card" th:if="${user != null}">
+        <div class="card-header">
+          <h2 class="card-title">Clinician</h2>
+          <span class="badge badge-oidc">OIDC</span>
+        </div>
+        <div class="user-card">
+          <div class="user-avatar" th:text="${#strings.substring(user.displayName, 0, 1)}">D</div>
+          <div class="user-info">
+            <div class="user-name" th:text="${user.displayName}">Dr. Smith</div>
+            <div class="user-fhir" th:if="${user.fhirUser}" th:text="${user.fhirUser}"></div>
+            <div class="user-sub mono small" th:text="'Subject: ' + ${user.subject}"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right fallback if no OIDC profile -->
+      <div class="card card-muted" th:if="${user == null}">
+        <div class="card-header"><h2 class="card-title">Clinician</h2></div>
+        <p class="muted-text">User profile not available. Ensure <code>openid</code>
+          and <code>fhirUser</code> scopes are granted.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Not authenticated -->
+  <div class="launch-notice" th:if="${session == null}">
+    <div class="notice-icon">🚀</div>
+    <h2>Launch from your EHR</h2>
+    <p>This app is designed to be launched from Epic's Hyperspace or the SMART LaunchPad.
+       Navigate to your EHR and click the app launch button.</p>
+    <p class="muted-text">Testing? Use <a href="https://launch.smarthealthit.org" target="_blank">launch.smarthealthit.org</a>
+      or <a href="https://open.epic.com/launchpad" target="_blank">open.epic.com/launchpad</a>.</p>
+  </div>
+
+</main>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

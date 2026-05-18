@@ -1,6 +1,6 @@
 # SMART on FHIR Client
 
-> A production-ready **SMART on FHIR EHR launch client** for Epic — Spring Boot 3.3.5 · Java 21 · HAPI FHIR R4
+> A production-ready **SMART on FHIR EHR launch client**  — Spring Boot 3.3.5 · Java 21 · HAPI FHIR R4
 
 [![Java](https://img.shields.io/badge/Java-21-blue?logo=openjdk)](https://openjdk.org/projects/jdk/21/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.5-brightgreen?logo=springboot)](https://spring.io/projects/spring-boot)
@@ -12,7 +12,7 @@
 
 ## What this is
 
-A complete, audited implementation of the [SMART App Launch v2.2](https://hl7.org/fhir/smart-app-launch/) specification targeting Epic EHR. It handles everything between Epic clicking "launch" and your code receiving a ready-to-use FHIR client — PKCE, dynamic discovery, token exchange, token refresh, OIDC user profiles, Spring Security 6 wiring, and a clinical Thymeleaf UI.
+A complete, Spring implementation of the [SMART App Launch v2.2](https://hl7.org/fhir/smart-app-launch/) specification targeting EHR Servers. It handles everything between Server clicking "launch" and your code receiving a ready-to-use FHIR client — PKCE, dynamic discovery, token exchange, token refresh, OIDC user profiles, Spring Security 6 wiring, and a clinical Thymeleaf UI.
 
 **Why it exists:** Every existing Spring Boot SMART library (including [HealthLX/smart-on-fhir](https://github.com/HealthLX/smart-on-fhir)) uses `WebSecurityConfigurerAdapter`, which was removed in Spring Security 6. None compile on Spring Boot 3. This was built from scratch to fill that gap.
 
@@ -245,11 +245,11 @@ Before deploying to a real hospital environment:
 4. **HIPAA BAA** — must be signed with the hospital and any cloud provider before real patient data flows
 5. **App Orchard** — Epic requires app registration and review before production hospital deployment (2–12 weeks)
 
-See [Production Checklist](docs/operations/production-checklist.md) in the docs for the complete list.
+See [Production Checklist](https://smart-on-fhir-doc.akhester.com/operations/production-checklist/) in the docs for the complete list.
 
 ---
 
-## vs HealthLX/smart-on-fhir
+## Akhester/smart-on-fhir vs HealthLX/smart-on-fhir
 
 | | HealthLX (2019) | This project |
 |---|---|---|
@@ -267,19 +267,6 @@ See [Production Checklist](docs/operations/production-checklist.md) in the docs 
 
 ---
 
-## Documentation
-
-Full documentation built with MkDocs Material is in the [`docs/`](docs/) directory.
-
-To serve locally:
-
-```bash
-pip install mkdocs-material pymdown-extensions
-cd docs/..  # project root
-mkdocs serve
-```
-
----
 
 ## Contributing
 

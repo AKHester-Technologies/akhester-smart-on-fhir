@@ -12,7 +12,7 @@
 
 ## What this is
 
-A complete, Spring implementation of the [SMART App Launch v2.2](https://hl7.org/fhir/smart-app-launch/) specification targeting EHR Servers. It handles everything between Server clicking "launch" and your code receiving a ready-to-use FHIR client — PKCE, dynamic discovery, token exchange, token refresh, OIDC user profiles, Spring Security 6 wiring, and a clinical Thymeleaf UI.
+A complete,Spring implementation of the [SMART App Launch v2.2](https://hl7.org/fhir/smart-app-launch/) specification targeting EHR Servers. It handles everything between Server clicking "launch" and your code receiving a ready-to-use FHIR client — PKCE, dynamic discovery, token exchange, token refresh, OIDC user profiles, Spring Security 6 wiring, and a clinical Thymeleaf UI.
 
 **Why it exists:** Every existing Spring Boot SMART library (including [HealthLX/smart-on-fhir](https://github.com/HealthLX/smart-on-fhir)) uses `WebSecurityConfigurerAdapter`, which was removed in Spring Security 6. None compile on Spring Boot 3. This was built from scratch to fill that gap.
 

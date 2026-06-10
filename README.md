@@ -283,5 +283,12 @@ Please open an issue before submitting a large PR.
 ---
 
 ## License
+Copyright [2026] [akhester.com]
 
-[MIT](LICENSE) — free for personal, educational, and commercial use.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.
+
+## License
+Apache 2 — free for personal, educational, and commercial use.
